@@ -1,3 +1,281 @@
+<a name="2.6.0"></a>
+## 2.6.0 (2015-02-08)
+
+
+#### Bug Fixes
+
+* **directive:**
+  * newlines before/after translation ids should be ignored ([8dcf3e23](http://github.com/angular-translate/angular-translate/commit/8dcf3e23e9623b59f71c4b18c19a066f649b7bdf), closes [#909](http://github.com/angular-translate/angular-translate/issues/909))
+  * fix missing update using dynamic translationIds ([faebe195](http://github.com/angular-translate/angular-translate/commit/faebe19598d35ac31678cce028d61c87ecd4b20a), closes [#854](http://github.com/angular-translate/angular-translate/issues/854))
+  * ensure internal watcher will be removed ([e69f4a14](http://github.com/angular-translate/angular-translate/commit/e69f4a14ccb4c549250900696c58ae4ede71c656))
+  * fix minor memory leak ([5e4533a4](http://github.com/angular-translate/angular-translate/commit/5e4533a4a485672ab7e1675d5d1a11f689e5d6ad))
+* **filter:** apply notFoundIndicators also for instant translations correctly ([5a9f436f](http://github.com/angular-translate/angular-translate/commit/5a9f436fb8444d4992b00383bd37b61580e816d4), closes [#866](http://github.com/angular-translate/angular-translate/issues/866))
+* **service:**
+  * fix an issue with default interpolator and expressions ([75b7381f](http://github.com/angular-translate/angular-translate/commit/75b7381fbfbb342b98a7fe8f9a9b7915004dc66c))
+  * use $window/$windowProvider instead of window fix(docs): update ngdocs on storag ([bfa7b7b2](http://github.com/angular-translate/angular-translate/commit/bfa7b7b28f6e2698205e774b4d13d34d85abfc2f))
+  * fallback languages follow shortcuts (fixes #758) ([cce897a3](http://github.com/angular-translate/angular-translate/commit/cce897a34a2087c6799cd11889bc90db3c56f227))
+
+
+#### Features
+
+* **$translatePartialLoader:** adds optional priority param to the addPart function ([570617cf](http://github.com/angular-translate/angular-translate/commit/570617cf68804fdd21ba215d9a6a7c4b3083fd2a))
+* **directive:** add $translateProvider.directityPriority ([b0b77162](http://github.com/angular-translate/angular-translate/commit/b0b771624cda1a51879c7f685f98e90923d4a3b0))
+* **loader:** support for multiple static translation files ([c462ee6a](http://github.com/angular-translate/angular-translate/commit/c462ee6aa6f095f3cd7e1b5ebc9d4b4d135c1ae2))
+* **service:** extend loader api: add isPartLoaded and getRegisteredParts to $translatePartialL ([54f8ab3e](http://github.com/angular-translate/angular-translate/commit/54f8ab3e166fa2e1ef1c1334263f9df612a4940e))
+
+
+<a name="2.5.2"></a>
+### 2.5.2 (2014-12-10)
+
+Internal release. No changes.
+
+
+<a name="2.5.1"></a>
+### 2.5.1 (2014-12-10)
+
+
+#### Bug Fixes
+
+* **directive:** missing watch for expression within elements text nodes ([31c03560](http://github.com/angular-translate/angular-translate/commit/31c03560ddb537734303c41419b147262d511841), closes [#701](http://github.com/angular-translate/angular-translate/issues/701))
+
+
+<a name="2.5.0"></a>
+## 2.5.0 (2014-12-07)
+
+
+#### Bug Fixes
+
+* **directive:** ensure directive's text will be parsed at least once ([49cfef0f](http://github.com/angular-translate/angular-translate/commit/49cfef0f58dd8c8306e6c0d4c6e78854ff2bbd8b))
+* **loader:** under certain circumstances translation table got lost ([df373811](http://github.com/angular-translate/angular-translate/commit/df3738119677b6834b2d47455bf35161c9b0c588))
+* **messageformat-interpolation:** fix support for messageformat 0.2.* ([ac8d5ed1](http://github.com/angular-translate/angular-translate/commit/ac8d5ed1b43f3db7b269964383528b116ad26283))
+* **service:**
+  * fix npe when resolving fallback language for `instant` ([7c09d89d](http://github.com/angular-translate/angular-translate/commit/7c09d89d8b890a1a7018e051ec2491899b6d66f5))
+  * apply fix for empty strings in `navigator.language` ([5b4edd99](http://github.com/angular-translate/angular-translate/commit/5b4edd99ef2f2c75aa88176fd7331426be799453))
+
+
+#### Features
+
+* **$translateUrlLoader:** allow to use custom query parameter name for url loader ([e360bf8c](http://github.com/angular-translate/angular-translate/commit/e360bf8ca7266ba447bd23dd62ad5f8ae7d13b96))
+* **directive:**
+  * translate attributes (optimize process flow) ([508fd32e](http://github.com/angular-translate/angular-translate/commit/508fd32eedd483f972fb0e27472c48bc13b7149a))
+  * translate attributes using directive ([1d06d2a1](http://github.com/angular-translate/angular-translate/commit/1d06d2a11474aecbcc1fd2f0bd73563d889a8157), closes [#568](http://github.com/angular-translate/angular-translate/issues/568))
+* **module:** use same fallback for module.run when no storage key is set and not being able t ([247253dd](http://github.com/angular-translate/angular-translate/commit/247253ddf97f185cad507d345245881cc0ccb2c8), closes [#739](http://github.com/angular-translate/angular-translate/issues/739))
+* **storage:** rename set() into put() ([ef6a613e](http://github.com/angular-translate/angular-translate/commit/ef6a613e70c0e2fcf2c32fe4b0ad1ffa51be4f0c))
+
+
+#### Breaking Changes
+
+* This marks storage.set() as deprecated. In the
+next major release v3, the old method `set()` will be dropped in favor
+of `put()`.
+
+Relates #772
+ ([ef6a613e](http://github.com/angular-translate/angular-translate/commit/ef6a613e70c0e2fcf2c32fe4b0ad1ffa51be4f0c))
+
+
+<a name="2.4.2"></a>
+### 2.4.2 (2014-10-21)
+
+
+#### Bug Fixes
+
+* **partialloader:** fix possible circular dependency ([25f252c1](http://github.com/angular-translate/angular-translate/commit/25f252c14aab58b9e2dc61e2765420b584106b6f), closes [#766](http://github.com/angular-translate/angular-translate/issues/766))
+
+
+#### Features
+
+* **directive:** translate-cloak supports optional value for cloaking ([f7ccb7fb](http://github.com/angular-translate/angular-translate/commit/f7ccb7fbdac184b6a8b216966ebf89b4a8d3fb5e))
+
+
+<a name="2.4.1"></a>
+### 2.4.1 (2014-10-03)
+
+
+#### Bug Fixes
+
+* **service:**
+  * constructor `useUrlLoader()` missed optional options ([22f5c4b7](http://github.com/PascalPrecht/angular-translate/commit/22f5c4b7b9612b3645c5d79b9bc9d2fec917fe25))
+  * add missing final event on new (async) translations ([22cc8b42](http://github.com/PascalPrecht/angular-translate/commit/22cc8b42d61ca6c6e2641de565b4f61a13469a50))
+  * the loader options ($http) have been merged wrong #754 #547
+
+
+# 2.4.0 (2014-09-22)
+
+## Features
+### service
+
+* introduce `versionInfo` function (e37d89c)
+
+* prefer detecting language by `navigator.languages` #722 (2204f4f)
+
+* enrich events with the currently handled language key (73b289d)
+
+* interpolate translationId in case of rejected translation (3efaac5)
+
+### loaders
+
+* introduce loader cache (b685601)
+
+### loader
+
+* apply support for loaderOptions.$http (8613bef)
+
+
+
+## Bug fixes
+### service
+
+* correctly iterate in fallback languages (fixes #690) (ac2f35c)
+
+* `$nextLang` should be not unset parallel loadings (d1745e4)
+
+* avoid possible doubled requested on refresh() (98d429d)
+
+* avoid possible npe in internal getTranslationTable() (9aaa9a0)
+
+### filter
+
+* mark filter being stateful required since Angular 1.3 rc2 (bffbf04)
+
+* interpolated params w/ scope aren't possible starting AJS1.3 (9465318)
+
+
+<a name="2.3.0"></a>
+## 2.3.0 (2014-09-16)
+
+
+#### Bug Fixes
+
+* **$translate:** return $missingTranslationHandler result when no translation was found ([7625951d](http://github.com/PascalPrecht/angular-translate/commit/7625951de2474049be78294fa129c32ea46df6a9))
+* **bower.json:** Avoid 'invalid-meta angular-bootstrap-affix is missing "ignore" entry in bower.j ([595501a9](http://github.com/PascalPrecht/angular-translate/commit/595501a9d4882207e3ff510dec80dbe0a553d580))
+* **demo:** fixes wrong method call in demo ([47fc9436](http://github.com/PascalPrecht/angular-translate/commit/47fc9436cfc69347f8a9b7f09cf5c726c0ca1931))
+* **directive:**
+  * improve the cloak-directive's performance ([acab18ab](http://github.com/PascalPrecht/angular-translate/commit/acab18ab5e6f455db86f6c9dabbbbdbc2f7b7855))
+  * change event for listening to `$translateChangeEnd` ([98fe649a](http://github.com/PascalPrecht/angular-translate/commit/98fe649a241b79c245fb32d838b84f0fac319f5a), closes [#658](http://github.com/PascalPrecht/angular-translate/issues/658))
+* **docs:**
+  * fix example in directive ngdoc-documentation (fixes #678) ([176b3e96](http://github.com/PascalPrecht/angular-translate/commit/176b3e96a78c4590f42817e6dcf44addcc49a13f))
+  * Fix typo ([6c2ab307](http://github.com/PascalPrecht/angular-translate/commit/6c2ab307d5b31c0e2e70c2cce0ccbf804db4c540))
+* **package.json:** remove unnecessary relative paths from package.json ([8e5b87e7](http://github.com/PascalPrecht/angular-translate/commit/8e5b87e726562b2fcfdaefb49b35c114e92c66a0))
+* **service:**
+  * use hasOwnProperty of prototype #638 ([d8a5060b](http://github.com/PascalPrecht/angular-translate/commit/d8a5060b2273f699fa75e32d7a73e5f62aab670c))
+  * add shim for indexOf and trim #638 ([b951fd50](http://github.com/PascalPrecht/angular-translate/commit/b951fd50f1f312755de1fd66f51e38bef3f5b882))
+  * load fallback languages also for instant and filter ([ed6023a4](http://github.com/PascalPrecht/angular-translate/commit/ed6023a4aa2ebc51ba839b976eb1b8f8e8fa91b6))
+  * addition of preferred language to fallback language stack is now preventing dupl ([b2bb1669](http://github.com/PascalPrecht/angular-translate/commit/b2bb166944074aa174f0ed557bf4e2457128b3b8))
+* **storage:**
+  * fixup 75504cbe ([53a8badb](http://github.com/PascalPrecht/angular-translate/commit/53a8badbd1d8fe82d43ddc17e27eaae1a414ee9b))
+  * fix 'DOM Exception 18' at feature detection ([75504cbe](http://github.com/PascalPrecht/angular-translate/commit/75504cbe2ddc0d18e08288b0fa4453356aaafe73))
+* **translateService:**
+  * fixup/rewrite for b48f6bb (specs) ([45ac14d5](http://github.com/PascalPrecht/angular-translate/commit/45ac14d5bf7d8d9569fa0fff99a0dcb5bc419e68))
+  * prevent multiple XHR calls ([b48f6bb4](http://github.com/PascalPrecht/angular-translate/commit/b48f6bb438a193174df569beef24d193d5cd954c))
+
+
+#### Features
+
+* **directive:** add possibility to mix translation interpolation with other text in element body ([be621314](http://github.com/PascalPrecht/angular-translate/commit/be6213144a686b34cff3ba29b9a52041924b2c9e), closes [#461](http://github.com/PascalPrecht/angular-translate/issues/461))
+
+
+<a name="2.2.0"></a>
+## 2.2.0 (2014-06-03)
+
+
+#### Bug Fixes
+
+* fix npe on empty strings (trim()) ([c69de7b8](http://github.com/PascalPrecht/angular-translate/commit/c69de7b87a0efe05548f03b1f2767968d2dc6aac))
+* **$translate:**
+  * checks modification ([b91e4ded](http://github.com/PascalPrecht/angular-translate/commit/b91e4ded560a96a815248f116c893e10414296af))
+  * if translation exists, use the translated string even if it's empty ([eeb8c2ad](http://github.com/PascalPrecht/angular-translate/commit/eeb8c2ad23f915828e83c840ecb00c840812dfa2))
+  * use case-insensitive check for language key aliases ([26ec3088](http://github.com/PascalPrecht/angular-translate/commit/26ec3088bcc50bacb8370e352e556d4e48830b64))
+* **$translateProvider:**
+  * determinePreferredLanguage was not chainable ([7c29f2fc](http://github.com/PascalPrecht/angular-translate/commit/7c29f2fc5aeea17dd50ecfc40d1fad67ddd93650), closes [#487](http://github.com/PascalPrecht/angular-translate/issues/487))
+  * fix comparison in one case of negotiateLocale() ([fe04c72f](http://github.com/PascalPrecht/angular-translate/commit/fe04c72fc1bb2b9ff07ac0d974374e16397d58c7))
+* **demo:**
+  * use `.instant()` ([6bea1928](http://github.com/PascalPrecht/angular-translate/commit/6bea19281d52f8ae956f6e898616d01c097d8c23))
+  * correct demo of `translate-values` ([7de2ae23](http://github.com/PascalPrecht/angular-translate/commit/7de2ae23ee87a10921c3b4883d535fd69ecf2b89))
+* **directive:** Make translate-value-* work inside ng-if and ng-repeat ([e07eea75](http://github.com/PascalPrecht/angular-translate/commit/e07eea757aec8cf3d2342abcd94e97d1fe615c80))
+* **docs:** removes explicit protocol declaration for assets ([eaa9bf7b](http://github.com/PascalPrecht/angular-translate/commit/eaa9bf7b46cf5983e9f9fd97a22a606bf52480dd))
+* **gruntfile:** fix image link ([65fc8be3](http://github.com/PascalPrecht/angular-translate/commit/65fc8be35ddae016438fd627d788317c46bb22f3))
+* **package.json:** fix repository url ([40af7ce7](http://github.com/PascalPrecht/angular-translate/commit/40af7ce79228526068e11f1a3b6cc3f56e30a831))
+* **partialLoader:** fixes deprecated usage of arguments.callee ([1ac3a0a7](http://github.com/PascalPrecht/angular-translate/commit/1ac3a0a7c69f0e765a615a395ea467f9de95f0c9))
+* **service:**
+  * use the aliased language key if available ([675e9a21](http://github.com/PascalPrecht/angular-translate/commit/675e9a21b6b20b9aa78514deb602954a985a5f83), closes [#530](http://github.com/PascalPrecht/angular-translate/issues/530))
+  * docs annotation ([839c4e89](http://github.com/PascalPrecht/angular-translate/commit/839c4e89f1fa062bfceebf43126cc38b699f891c))
+* **storageLocal:** fixes QUOTAEXCEEDEDERROR (safari private browsing) ([59aa2a01](http://github.com/PascalPrecht/angular-translate/commit/59aa2a01dca73b8343eadd77d41dcb294bfad89a))
+* **translateInterpolator:** make it work with 1.3-beta ([97e2241c](http://github.com/PascalPrecht/angular-translate/commit/97e2241c9f612df347863b3fb57acc5416168b07))
+
+
+#### Features
+
+* **directive:**
+  * add option to define a default translation text ([a8026651](http://github.com/PascalPrecht/angular-translate/commit/a8026651b5fdc424c681c03cda1b1f749493ba26))
+  * Support for camel casing interpolation variables. ([b3450410](http://github.com/PascalPrecht/angular-translate/commit/b3450410686846291fd068616237586b35beb91e))
+* **messageformat-support:** enhancing for sanitization like default ([ad016861](http://github.com/PascalPrecht/angular-translate/commit/ad016861f6ed4d65a6ee074b8feba3f9911dfc20))
+* **missingFallbackDefaultText:** enables a feature to return a default text for displaying in case of missing tra ([f24b15e8](http://github.com/PascalPrecht/angular-translate/commit/f24b15e8d3ca6231deab64a843d4ca5830176343))
+* **service:**
+  * allow using wildcards in language aliases ([6f0ae3bf](http://github.com/PascalPrecht/angular-translate/commit/6f0ae3bf6dd873534c9957b2cce398b290c92da7), closes [#426](http://github.com/PascalPrecht/angular-translate/issues/426))
+  * add possibility to translate a set of translation ids ([612dc27b](http://github.com/PascalPrecht/angular-translate/commit/612dc27b1382679941061f71920f4ee0bc6f7834))
+
+
+# 2.1.0 (2014-04-02)
+
+## Features
+### directive
+
+* Support for camel casing interpolation variables. (4791e25)
+
+* add option to define a default translation text (fc57d26)
+
+### service
+
+* add possibility to translate a set of translation ids (57bd07c)
+
+
+
+## Bug fixes
+### $translate
+
+* use case-insensitive check for language key aliases (09a8bf1)
+
+* if translation exists, use the translated string even if it's empty (4ba736f)
+
+* docs annotation (8ef0415)
+### directive
+
+* Make translate-value-* work inside ng-if and ng-repeat (f22624b)
+
+### package.json
+
+* fix repository url (a410c9a)
+
+### $translateProvider
+
+* fix comparison in one case of negotiateLocale() (c2b94ca)
+
+# 2.0.1 (2014-02-25)
+
+## Features
+### instant
+
+* invoke missing handler within `$translate.instant(id)` (aaf52b5)
+
+
+
+## Bug fixes
+### instant
+
+* fix possible npe in case of filters with undefineds (61a9490)
+
+* $translate.instant(id) does not return correct fallback (eec1d77)
+
+### refresh
+
+* fix bug in refresh if using partial loader (95c43b4)
+
+### $translate
+
+* Ensuring that languages will be set based on the order they are requested, not the order the responses come in. (32e1851)
+
+
+
 # 2.0.0 (2014-02-16)
 
 ## Features

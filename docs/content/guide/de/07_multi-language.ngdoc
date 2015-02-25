@@ -73,13 +73,14 @@ Loader zu unschönen Seiteneffekten kommt. Aus diesem Grund wurde `preferredLang
 eingeführt. Wenn man für diesen Anwendungsfall `preferredLanguage()` anstatt
 `use()` verwendet, kann man nichts falsch machen.
 
-## Automatische Wahl der praeferierten Sprache
+## Automatische Wahl der präferierten Sprache
 
 Seit Version `2.0` besteht die Möglichkeit, mittels `determinePreferredLanguage()` im
 `$translateProvider` die bevorzugte Sprache setzen zu lassen. Die Methode probiert
 selbstständig, die bevorzugte Sprache (des Browsers) zu ermitteln. Dafür wird im
 `window.navigator` object nach folgenden Parametern geschaut (in dieser Reihenfolge):
 
+- `navigator.languages[0]`
 - `navigator.language`
 - `navigator.browserLanguage`
 - `navigator.systemLanguage`

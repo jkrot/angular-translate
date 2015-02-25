@@ -38,6 +38,7 @@ describe('pascalprecht.translate', function() {
         return deferred.promise;
       };
     });
+
   }));
 
   describe('$translatePartialLoaderProvider', function () {
@@ -86,14 +87,14 @@ describe('pascalprecht.translate', function() {
       it('should throw an error if given arg is not a string', function() {
         inject(function($translatePartialLoader) {
           var message = 'Couldn\'t add part, part name has to be a string!';
-          expect(function() { $provider.addPart(function(){}); }).toThrow(message);
-          expect(function() { $provider.addPart(false); }).toThrow(message);
-          expect(function() { $provider.addPart(null); }).toThrow(message);
-          expect(function() { $provider.addPart(NaN); }).toThrow(message);
-          expect(function() { $provider.addPart([]); }).toThrow(message);
-          expect(function() { $provider.addPart({}); }).toThrow(message);
-          expect(function() { $provider.addPart(2); }).toThrow(message);
-          expect(function() { $provider.addPart(); }).toThrow(message);
+          expect(function() { $provider.addPart(function(){}); }).toThrowError(message);
+          expect(function() { $provider.addPart(false); }).toThrowError(message);
+          expect(function() { $provider.addPart(null); }).toThrowError(message);
+          expect(function() { $provider.addPart(NaN); }).toThrowError(message);
+          expect(function() { $provider.addPart([]); }).toThrowError(message);
+          expect(function() { $provider.addPart({}); }).toThrowError(message);
+          expect(function() { $provider.addPart(2); }).toThrowError(message);
+          expect(function() { $provider.addPart(); }).toThrowError(message);
         });
       });
 
@@ -128,41 +129,41 @@ describe('pascalprecht.translate', function() {
       it('should throw an error if first arg is not a string', function() {
         inject(function($translatePartialLoader) {
           var message = 'Couldn\'t set part.`lang` parameter has to be a string!';
-          expect(function() { $provider.setPart(function(){}); }).toThrow(message);
-          expect(function() { $provider.setPart(false); }).toThrow(message);
-          expect(function() { $provider.setPart(null); }).toThrow(message);
-          expect(function() { $provider.setPart(NaN); }).toThrow(message);
-          expect(function() { $provider.setPart([]); }).toThrow(message);
-          expect(function() { $provider.setPart({}); }).toThrow(message);
-          expect(function() { $provider.setPart(2); }).toThrow(message);
-          expect(function() { $provider.setPart(); }).toThrow(message);
+          expect(function() { $provider.setPart(function(){}); }).toThrowError(message);
+          expect(function() { $provider.setPart(false); }).toThrowError(message);
+          expect(function() { $provider.setPart(null); }).toThrowError(message);
+          expect(function() { $provider.setPart(NaN); }).toThrowError(message);
+          expect(function() { $provider.setPart([]); }).toThrowError(message);
+          expect(function() { $provider.setPart({}); }).toThrowError(message);
+          expect(function() { $provider.setPart(2); }).toThrowError(message);
+          expect(function() { $provider.setPart(); }).toThrowError(message);
         });
       });
 
       it('should throw an error if a second arg is not a non-empty string', function() {
         inject(function($translatePartialLoader) {
           var message = 'Couldn\'t set part.`part` parameter has to be a string!';
-          expect(function() { $provider.setPart('l', function(){}); }).toThrow(message);
-          expect(function() { $provider.setPart('l', false); }).toThrow(message);
-          expect(function() { $provider.setPart('l', null);  }).toThrow(message);
-          expect(function() { $provider.setPart('l', NaN);   }).toThrow(message);
-          expect(function() { $provider.setPart('l', []);    }).toThrow(message);
-          expect(function() { $provider.setPart('l', {});    }).toThrow(message);
-          expect(function() { $provider.setPart('l', 2);     }).toThrow(message);
-          expect(function() { $provider.setPart('l');        }).toThrow(message);
+          expect(function() { $provider.setPart('l', function(){}); }).toThrowError(message);
+          expect(function() { $provider.setPart('l', false); }).toThrowError(message);
+          expect(function() { $provider.setPart('l', null);  }).toThrowError(message);
+          expect(function() { $provider.setPart('l', NaN);   }).toThrowError(message);
+          expect(function() { $provider.setPart('l', []);    }).toThrowError(message);
+          expect(function() { $provider.setPart('l', {});    }).toThrowError(message);
+          expect(function() { $provider.setPart('l', 2);     }).toThrowError(message);
+          expect(function() { $provider.setPart('l');        }).toThrowError(message);
         });
       });
 
       it('should throw an error if a third arg is not an object', function() {
         inject(function($translatePartialLoader) {
           var message = 'Couldn\'t set part. `table` parameter has to be an object!';
-          expect(function() { $provider.setPart('l', 'p', function(){}); }).toThrow(message);
-          expect(function() { $provider.setPart('l', 'p', false);}).toThrow(message);
-          expect(function() { $provider.setPart('l', 'p', null); }).toThrow(message);
-          expect(function() { $provider.setPart('l', 'p', NaN);  }).toThrow(message);
-          expect(function() { $provider.setPart('l', 'p', 's');  }).toThrow(message);
-          expect(function() { $provider.setPart('l', 'p', 2);    }).toThrow(message);
-          expect(function() { $provider.setPart('l', 'p');       }).toThrow(message);
+          expect(function() { $provider.setPart('l', 'p', function(){}); }).toThrowError(message);
+          expect(function() { $provider.setPart('l', 'p', false);}).toThrowError(message);
+          expect(function() { $provider.setPart('l', 'p', null); }).toThrowError(message);
+          expect(function() { $provider.setPart('l', 'p', NaN);  }).toThrowError(message);
+          expect(function() { $provider.setPart('l', 'p', 's');  }).toThrowError(message);
+          expect(function() { $provider.setPart('l', 'p', 2);    }).toThrowError(message);
+          expect(function() { $provider.setPart('l', 'p');       }).toThrowError(message);
         });
       });
 
@@ -232,14 +233,14 @@ describe('pascalprecht.translate', function() {
       it('should throw an error if a given arg is not a string', function() {
         inject(function($translatePartialLoader) {
           var message = 'Couldn\'t delete part, first arg has to be string.';
-          expect(function() { $provider.deletePart(function(){}); }).toThrow(message);
-          expect(function() { $provider.deletePart(false);}).toThrow(message);
-          expect(function() { $provider.deletePart(null); }).toThrow(message);
-          expect(function() { $provider.deletePart(NaN);  }).toThrow(message);
-          expect(function() { $provider.deletePart([]);   }).toThrow(message);
-          expect(function() { $provider.deletePart({});   }).toThrow(message);
-          expect(function() { $provider.deletePart(2);    }).toThrow(message);
-          expect(function() { $provider.deletePart();     }).toThrow(message);
+          expect(function() { $provider.deletePart(function(){}); }).toThrowError(message);
+          expect(function() { $provider.deletePart(false);}).toThrowError(message);
+          expect(function() { $provider.deletePart(null); }).toThrowError(message);
+          expect(function() { $provider.deletePart(NaN);  }).toThrowError(message);
+          expect(function() { $provider.deletePart([]);   }).toThrowError(message);
+          expect(function() { $provider.deletePart({});   }).toThrowError(message);
+          expect(function() { $provider.deletePart(2);    }).toThrowError(message);
+          expect(function() { $provider.deletePart();     }).toThrowError(message);
         });
       });
 
@@ -290,14 +291,14 @@ describe('pascalprecht.translate', function() {
 
       it('should throw an error if a given arg is not a non-empty string', function() {
         var message = 'Couldn\'t add part, first arg has to be a string';
-        expect(function() { $translatePartialLoader.addPart(function(){}); }).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart(false);}).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart(null); }).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart(NaN);  }).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart([]);   }).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart({});   }).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart(2);    }).toThrow(message);
-        expect(function() { $translatePartialLoader.addPart();     }).toThrow(message);
+        expect(function() { $translatePartialLoader.addPart(function(){}); }).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart(false);}).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart(null); }).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart(NaN);  }).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart([]);   }).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart({});   }).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart(2);    }).toThrowError(message);
+        expect(function() { $translatePartialLoader.addPart();     }).toThrowError(message);
       });
 
       it('should be chainable', function() {
@@ -330,14 +331,14 @@ describe('pascalprecht.translate', function() {
 
       it('should throw an error if a first arg is not a string', function () {
         var message = 'Couldn\'t delete part, first arg has to be string';
-        expect(function() { $translatePartialLoader.deletePart(function(){});}).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart(false);}).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart(null); }).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart(NaN);  }).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart([]);   }).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart({});   }).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart(2);    }).toThrow(message);
-        expect(function() { $translatePartialLoader.deletePart();     }).toThrow(message);
+        expect(function() { $translatePartialLoader.deletePart(function(){});}).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart(false);}).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart(null); }).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart(NaN);  }).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart([]);   }).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart({});   }).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart(2);    }).toThrowError(message);
+        expect(function() { $translatePartialLoader.deletePart();     }).toThrowError(message);
       });
 
       it('should be chainable', function() {
@@ -598,5 +599,221 @@ describe('pascalprecht.translate', function() {
         expect(counter).toEqual(2);
       });
     });
+
+    it('should put a part into a cache and remove from the cache if the part was deleted', function() {
+      module(function($httpProvider, $translateProvider) {
+        $httpProvider.defaults.transformRequest.push(CounterHttpInterceptor);
+        $translateProvider.useLoaderCache();
+      });
+
+      inject(function($translatePartialLoader, $httpBackend, $translationCache) {
+        $httpBackend.whenGET('/locales/part-en.json').respond(200, '{}');
+
+        $translatePartialLoader.addPart('part');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            cache: $translationCache
+          }
+        });
+        $httpBackend.flush();
+        expect($translationCache.info().size).toEqual(1);
+
+        $translatePartialLoader.deletePart('part', true);
+        expect($translationCache.info().size).toEqual(0);
+      });
+    });
   });
+
+
+
+  describe('$translatePartialLoader with custom options (method=POST)', function () {
+
+    beforeEach(module('pascalprecht.translate'));
+
+    it('should make 1 request per 1 part', function () {
+
+      counter = 0;
+
+      module(function($httpProvider) {
+        $httpProvider.defaults.transformRequest.push(CounterHttpInterceptor);
+      });
+
+      inject(function($translatePartialLoader, $httpBackend) {
+        $httpBackend.expectPOST('/locales/part1-en.json').respond(200, '{}');
+        $httpBackend.expectPOST('/locales/part2-en.json').respond(200, '{}');
+
+        $translatePartialLoader.addPart('part1');
+        $translatePartialLoader.addPart('part2');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        $httpBackend.flush(2);
+        expect(counter).toEqual(2);
+      });
+    });
+
+    it('shouldn\'t load the same part twice for one language', function() {
+
+      counter = 0;
+
+      module(function($httpProvider) {
+        $httpProvider.defaults.transformRequest.push(CounterHttpInterceptor);
+      });
+
+      inject(function($translatePartialLoader, $httpBackend) {
+        $httpBackend.whenPOST('/locales/part-en.json').respond(200, '{}');
+
+        $translatePartialLoader.addPart('part');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        $httpBackend.flush();
+
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        try {
+          $httpBackend.flush();
+        } catch (e) {}
+
+        expect(counter).toEqual(1);
+      });
+    });
+
+    it('shouldn\'t load a part if it was loaded, deleted and added again', function() {
+      counter = 0;
+      module(function($httpProvider) {
+        $httpProvider.defaults.transformRequest.push(CounterHttpInterceptor);
+      });
+
+      inject(function($translatePartialLoader, $httpBackend) {
+        $httpBackend.whenPOST('/locales/part-en.json').respond(200, '{}');
+
+        $translatePartialLoader.addPart('part');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        $httpBackend.flush();
+
+        $translatePartialLoader.deletePart('part');
+        $translatePartialLoader.addPart('part');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        try { $httpBackend.flush(); } catch (e) {}
+
+        expect(counter).toEqual(1);
+      });
+    });
+
+    it('should load a part if it was loaded, deleted and added again', function() {
+
+      counter = 0;
+
+      module(function($httpProvider) {
+        $httpProvider.defaults.transformRequest.push(CounterHttpInterceptor);
+      });
+
+      inject(function($translatePartialLoader, $httpBackend) {
+        $httpBackend.whenPOST('/locales/part-en.json').respond(200, '{}');
+
+        $translatePartialLoader.addPart('part');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        $httpBackend.flush();
+
+        $translatePartialLoader.deletePart('part', true);
+        $translatePartialLoader.addPart('part');
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json',
+          $http: {
+            method: 'POST'
+          }
+        });
+        $httpBackend.flush();
+
+        expect(counter).toEqual(2);
+      });
+    });
+
+    it('should load parts in order of priority', function(done) {
+      module(function($provide) {
+        //Randomly delay $http response to simulate real-world scenario.
+        $provide.decorator('$httpBackend', function($delegate) {
+          var proxy = function(method, url, data, callback, headers) {
+              var interceptor = function() {
+                  var _this = this,
+                      _arguments = arguments,
+                      _timeout = Math.floor((Math.random() * 50) + 1);
+                  console.log('setting timeout to', _timeout);
+                  setTimeout(function() {
+                      callback.apply(_this, _arguments);
+                  }, _timeout);
+              };
+              return $delegate.call(this, method, url, data, interceptor, headers);
+          };
+          for(var key in $delegate) {
+              proxy[key] = $delegate[key];
+          }
+          return proxy;
+        });
+      });
+
+      inject(function($translatePartialLoader, $httpBackend) {
+        var table;
+        
+        $httpBackend.whenGET('/locales/part1-en.json').respond(200, '{"key1":"value1","key2":"value2","key3":"value3","key4":"value4"}');
+        $httpBackend.whenGET('/locales/part2-en.json').respond(200, '{"key2" : "overridenby2","key4":"overridenby2"}');
+        $httpBackend.whenGET('/locales/part3-en.json').respond(200, '{"key3" : "overridenby3","key4":"overridenby3"}');
+
+        $translatePartialLoader.addPart('part2', 1);
+        $translatePartialLoader.addPart('part3', 2);
+        $translatePartialLoader.addPart('part1', 0);
+        $translatePartialLoader({
+          key : 'en',
+          urlTemplate : '/locales/{part}-{lang}.json'
+        }).then(function(data) {
+          table = data;
+          expect(table.key1).toEqual('value1');
+          expect(table.key2).toEqual('overridenby2');
+          expect(table.key3).toEqual('overridenby3');
+          expect(table.key4).toEqual('overridenby3');
+          done();
+        }, function() {
+          table = {};
+        });
+
+        $httpBackend.flush();
+      });
+    });
+  });
+
 });

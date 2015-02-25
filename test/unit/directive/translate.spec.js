@@ -35,6 +35,32 @@ describe('pascalprecht.translate', function () {
       expect(element.text()).toBe('TEXT');
     });
 
+    it('should return translation id if translation doesn\'t exist and if its passed as interpolation', function () {
+      $rootScope.translationIds = 'TEXT';
+      element = $compile('<div translate="{{translationIds}}"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.text()).toBe('TEXT');
+    });
+
+    it('should return default text if translation doesn\'t exist', function () {
+      element = $compile('<div translate="TEXT" translate-default="Not translated"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.text()).toBe('Not translated');
+    });
+
+    it('should return default text if translation doesn\'t exist', function () {
+      element = $compile('<div translate translate-default="Not translated">TEXT</div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.text()).toBe('Not translated');
+    });
+
+    it('should return interpolated default text if translation doesn\'t exist', function () {
+      $rootScope.v = '123';
+      element = $compile('<div translate="TEXT" translate-default="Not translated {{v}}"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.text()).toBe('Not translated 123');
+    });
+
     it('should return translation if translation id exist', function () {
       element = $compile('<div translate="TRANSLATION_ID"></div>')($rootScope);
       $rootScope.$digest();
@@ -67,12 +93,28 @@ describe('pascalprecht.translate', function () {
         expect(element.text()).toBe('TEXT');
       });
 
+      it('should return translation id if translation doesn\'t exist (innerHTML with newlines)', function () {
+        element = $compile("<div translate>\nTEXT\n</div>")($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('TEXT');
+      });
+
       it('should return translation if translation id exist', function () {
         element = $compile('<div translate>TRANSLATION_ID</div>')($rootScope);
         $rootScope.$digest();
         expect(element.text()).toBe('foo');
 
         element = $compile('<div translate>BLANK_VALUE</div>')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('');
+      });
+
+      it('should return translation if translation id exist (innerHTML with newlines)', function () {
+        element = $compile("<div translate>\nTRANSLATION_ID\n</div>")($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('foo');
+
+        element = $compile("<div translate>\nBLANK_VALUE\n</div>")($rootScope);
         $rootScope.$digest();
         expect(element.text()).toBe('');
       });
@@ -91,6 +133,42 @@ describe('pascalprecht.translate', function () {
         expect(element.text()).toBe('foo');
       });
 
+      it('should return newer translation if translation id exist and if its passed as interpolation', function () {
+        $rootScope.translationId = 'TRANSLATION_ID';
+        element = $compile('<div translate>{{translationId}}</div>')($rootScope);
+        $rootScope.$digest();
+        $rootScope.translationId = 'TEXT'; // refresh expression
+        $rootScope.$digest();
+        expect(element.text()).toBe('TEXT');
+      });
+
+      it('should return translation prepended by additional content when passed as interpolation', function () {
+        $rootScope.translationId = 'TRANSLATION_ID';
+        element = $compile('<div translate>abc{{translationId}}')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('abcfoo');
+      });
+
+      it('should return translation appended by additional content when passed as interpolation', function () {
+        $rootScope.translationId = 'TRANSLATION_ID';
+        element = $compile('<div translate>{{translationId}}def')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('foodef');
+      });
+
+      it('should return translation surrounded by additional content when passed as interpolation', function () {
+        $rootScope.translationId = 'TRANSLATION_ID';
+        element = $compile('<div translate>abc{{translationId}}def')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('abcfoodef');
+      });
+
+      it('should return translation surrounded by additional content when passed as interpolation with literal', function () {
+        element = $compile('<div translate>abc{{"TRANSLATION_ID"}}def')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('abcfoodef');
+      });
+
       it('should return translation if translation id exists and if its passed surrounded by white space', function () {
         element = $compile('<div translate>  TRANSLATION_ID  </div>')($rootScope);
         $rootScope.$digest();
@@ -103,6 +181,27 @@ describe('pascalprecht.translate', function () {
         expect(element.text()).toBe('foo');
 
         element = $compile('<translate>BLANK_VALUE</translate>')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('');
+      });
+    });
+
+    describe('after a translation was successful should return empty string', function () {
+      it('(translation id is passed as interpolation in attribute', function () {
+        $rootScope.translationId = 'TRANSLATION_ID';
+        element = $compile('<div translate="{{translationId}}"></div>')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('foo');
+        $rootScope.translationId = '';
+        $rootScope.$digest();
+        expect(element.text()).toBe('');
+      });
+      it('(translation id is passed as interpolation in text', function () {
+        $rootScope.translationId = 'TRANSLATION_ID';
+        element = $compile('<div translate>{{translationId}}</div>')($rootScope);
+        $rootScope.$digest();
+        expect(element.text()).toBe('foo');
+        $rootScope.translationId = '';
         $rootScope.$digest();
         expect(element.text()).toBe('');
       });
@@ -123,7 +222,7 @@ describe('pascalprecht.translate', function () {
           element = $compile('<div translate="{{translationId}}"></div>')($rootScope);
           $rootScope.$digest();
           expect(element.text()).toBe('Lorem Ipsum ');
-        });
+       });
 
         it('should replace interpolation directive with empty string if translation id is in content', function () {
           element = $compile('<div translate>TD_WITH_VALUE</div>')($rootScope);
@@ -283,7 +382,8 @@ describe('pascalprecht.translate', function () {
           'FOO': 'hello my name is {{name}}',
           'BAR': 'and I\'m {{age}} years old',
           'BAZINGA': 'hello my name is {{name}} and I\'m {{age}} years old.',
-          'YAY': 'hello my name is {{name}} and I\'m {{age}} years old. {{foo}}'
+          'YAY': 'hello my name is {{name}} and I\'m {{age}} years old. {{foo}}',
+          'CAMEL': 'hello my name is {{firstName}} {{lastName}}.'
         })
         .preferredLanguage('en');
     }));
@@ -321,6 +421,27 @@ describe('pascalprecht.translate', function () {
       element = $compile('<p translate="BAZINGA" translate-value-name="{{name}}" translate-value-age="{{age}}"></p>')($rootScope);
       $rootScope.$digest();
       expect(element.text()).toEqual('hello my name is Pascal and I\'m 22 years old.');
+    });
+
+    it('should handle interpolation variables with camel casing', function() {
+      element = $compile('<p translate="CAMEL" translate-value-first-name="Glenn" translate-value-last-name="Jorde"></p>')($rootScope);
+      $rootScope.$digest();
+      expect(element.text()).toEqual('hello my name is Glenn Jorde.');
+    });
+
+    // addresses [issue #433](https://github.com/angular-translate/angular-translate/issues/433)
+    it('should interpolate variables inside ng-if directives', function () {
+      var markup = '<div ng-if="true"><p translate="FOO" translate-value-name="{{name}}"></p></div>';
+      element = $compile(markup)($rootScope);
+      $rootScope.$digest();
+      expect(element.next().text()).toEqual('hello my name is Pascal');
+    });
+
+    it('should interpolate variables inside ng-repeat directives', function () {
+      var markup = '<div><div ng-repeat="i in [1]"><p translate="FOO" translate-value-name="{{name}}"></p></div></div>';
+      element = $compile(markup)($rootScope);
+      $rootScope.$digest();
+      expect(element.children().text()).toEqual('hello my name is Pascal');
     });
   });
 
@@ -503,6 +624,70 @@ describe('pascalprecht.translate', function () {
       // expect(element.html()).toEqual('<span class="ng-scope">The Doctor is a citizen of <strong ng-bind="world" class="ng-binding">Earth</strong>!</span>');
       // unfortunately, the order of tag attributes is not deterministic in all browsers
       expect(element.find('strong').html()).toEqual('Earth');
+    });
+  });
+
+  describe('translate-attr-* attributes', function () {
+
+    var element;
+
+    beforeEach(module('pascalprecht.translate', function ($translateProvider) {
+      $translateProvider
+        .translations('en', {
+          'ANOTHER_ONE': 'bar',
+          'TRANSLATION_ID': 'foo',
+          'TEXT_WITH_VALUE': 'This is a text with given value: {{value}}',
+          'ANOTHER_TEXT_WITH_VALUE': 'And here is another value: {{another_value}}'
+        })
+        .preferredLanguage('en');
+    }));
+
+    var $compile, $rootScope;
+
+    beforeEach(inject(function (_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+    }));
+
+
+    it('should make simple attribute translation', function () {
+      element = $compile('<div translate translate-attr-title="TRANSLATION_ID"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.attr('title')).toBe('foo');
+    });
+
+    it('should translate multiple attributes', function () {
+      element = $compile('<div translate translate-attr-name="ANOTHER_ONE" translate-attr-title="TRANSLATION_ID"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.attr('title')).toBe('foo');
+      expect(element.attr('name')).toBe('bar');
+    });
+
+    it('should translate attributes and content', function () {
+      element = $compile('<div translate="ANOTHER_ONE" translate-attr-title="TRANSLATION_ID"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.attr('title')).toBe('foo');
+      expect(element.text()).toBe('bar');
+    });
+
+    it('should translate attributes with value interpolation', function () {
+      element = $compile('<div translate translate-attr-title="TEXT_WITH_VALUE" translate-values="{value: \'bar\'}"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.attr('title')).toBe('This is a text with given value: bar');
+    });
+
+    it('should translate attributes and text with multiplue values interpolation', function () {
+      element = $compile('<div translate="ANOTHER_TEXT_WITH_VALUE" translate-attr-title="TEXT_WITH_VALUE" translate-values="{value: \'bar\', another_value: \'foo\'}"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.attr('title')).toBe('This is a text with given value: bar');
+      expect(element.text()).toBe('And here is another value: foo');
+    });
+
+    it('should translate attributes with simple interpolation', function () {
+      $rootScope.who = 'there!';
+      element = $compile('<div translate translate-attr-title="Helloo {{who}}"></div>')($rootScope);
+      $rootScope.$digest();
+      expect(element.attr('title')).toBe('Helloo there!');
     });
   });
 

@@ -6,13 +6,18 @@ describe('pascalprecht.translate', function () {
 
     beforeEach(module('pascalprecht.translate'));
 
-    beforeEach(inject(function (_$translate_, _$httpBackend_, _$translateUrlLoader_) {
+    beforeEach(inject(function (_$translate_, _$httpBackend_, _$translateUrlLoader_, _$translationCache_) {
       $translate = _$translate_;
       $httpBackend = _$httpBackend_;
       $translateUrlLoader = _$translateUrlLoader_;
+      $translationCache = _$translationCache_;
 
       $httpBackend.when('GET', 'foo/bar.json?lang=de_DE').respond({
         it: 'works'
+      });
+
+      $httpBackend.when('GET', 'foo/bar.json?language=de_DE').respond({
+        it: 'works too'
       });
     }));
 
@@ -32,7 +37,7 @@ describe('pascalprecht.translate', function () {
     it('should throw an error when called without url option', function () {
       expect(function () {
         $translateUrlLoader();
-      }).toThrow('Couldn\'t use urlLoader since no url is given!');
+      }).toThrowError('Couldn\'t use urlLoader since no url is given!');
     });
 
     it('should fetch url when invoking', function () {
@@ -42,6 +47,29 @@ describe('pascalprecht.translate', function () {
         url: 'foo/bar.json'
       });
       $httpBackend.flush();
+    });
+
+    it('should use custom query parameter name when invoking with queryParameter', function () {
+      $httpBackend.expectGET('foo/bar.json?language=de_DE');
+      $translateUrlLoader({
+        key: 'de_DE',
+        url: 'foo/bar.json',
+        queryParameter: 'language'
+      });
+      $httpBackend.flush();
+    });
+
+    it('should put a translation table into a cache', function() {
+      $httpBackend.expectGET('foo/bar.json?lang=de_DE');
+        $translateUrlLoader({
+        key: 'de_DE',
+        url: 'foo/bar.json',
+        $http: {
+          cache: $translationCache
+        }
+      });
+      $httpBackend.flush();
+      expect($translationCache.info().size).toEqual(1);
     });
 
     it('should return a promise', function () {
@@ -76,6 +104,36 @@ describe('pascalprecht.translate', function () {
 
     it('should fetch url when invoking #use', function () {
       $httpBackend.expectGET('foo/bar.json?lang=de_DE');
+      $translate.use('de_DE');
+      $httpBackend.flush();
+    });
+  });
+
+  describe('$translateProvider#useUrlLoader with custom $http options (method=POST)', function () {
+    beforeEach(module('pascalprecht.translate', function ($translateProvider) {
+      $translateProvider.useUrlLoader('foo/bar.json', {
+        $http: {
+          method: 'POST'
+        }
+      });
+    }));
+
+    var $translate, $httpBackend;
+
+    beforeEach(inject(function (_$translate_, _$httpBackend_) {
+      $httpBackend = _$httpBackend_;
+      $translate = _$translate_;
+
+      $httpBackend.when('POST', 'foo/bar.json?lang=de_DE').respond({it: 'works'});
+    }));
+
+    afterEach(function () {
+      $httpBackend.verifyNoOutstandingExpectation();
+      $httpBackend.verifyNoOutstandingRequest();
+    });
+
+    it('should fetch url when invoking #use', function () {
+      $httpBackend.expectPOST('foo/bar.json?lang=de_DE');
       $translate.use('de_DE');
       $httpBackend.flush();
     });

@@ -148,6 +148,45 @@ describe('pascalprecht.translate', function () {
       expect(value[1]).toEqual('');
     });
 
+    it('should return translation if translation id exists and return a default value if not existing', function () {
+      var deferred = $q.defer(),
+        promise = deferred.promise,
+        value;
+      promise.then(function (translation) {
+        value = translation;
+      });
+
+      $q.all([
+        $translate("EXISTING_TRANSLATION_ID"),
+        $translate("NON_EXISTING_KEY", undefined, undefined, "Default Translation")
+      ]).then(function (translations) {
+        deferred.resolve(translations);
+      });
+
+    $rootScope.$digest();
+    expect(value[0]).toEqual('foo');
+    expect(value[1]).toEqual('Default Translation');
+    });
+
+
+    it('should return translations of multiple translation ids if exists', function () {
+      var deferred = $q.defer(),
+          promise = deferred.promise,
+          value;
+
+      promise.then(function (translation) {
+        value = translation;
+      });
+
+      $translate(["EXISTING_TRANSLATION_ID", "BLANK_VALUE"]).then(function (translations) {
+        deferred.resolve(translations);
+      });
+
+      $rootScope.$digest();
+      expect(value.EXISTING_TRANSLATION_ID).toEqual('foo');
+      expect(value.BLANK_VALUE).toEqual('');
+    });
+
     it('should return translation, if translation id exists with whitespace', function () {
       var deferred = $q.defer(),
           promise = deferred.promise,
@@ -292,6 +331,272 @@ describe('pascalprecht.translate', function () {
       $rootScope.$digest();
       expect(value).toEqual('Hello there!');
     });
+
+  });
+
+  describe('$translate#use() with aliases', function () {
+
+    beforeEach(module('pascalprecht.translate', function ($translateProvider) {
+      $translateProvider
+        .translations('en', { 'YET_ANOTHER': 'Hello there!' })
+        .translations('tr_TR', { 'YET_ANOTHER': 'Selam millet! (tr_TR)' })
+        .translations('tr', { 'YET_ANOTHER': 'Selam millet! (tr)' })
+        .registerAvailableLanguageKeys(['en', 'tr', 'tr_TR'], {
+          'en_EN': 'en',
+          'en_US': 'en',
+          'en_GB': 'en',
+          'tr_*': 'tr'
+        })
+        .preferredLanguage('en_EN');
+    }));
+
+    var $translate, $rootScope, $STORAGE_KEY, $q;
+
+    beforeEach(inject(function (_$translate_, _$rootScope_, _$STORAGE_KEY_, _$q_) {
+      $translate = _$translate_;
+      $rootScope = _$rootScope_;
+      $STORAGE_KEY = _$STORAGE_KEY_;
+      $q = _$q_;
+    }));
+
+    it('should respect the language aliases', function () {
+      var deferred = $q.defer(),
+          promise = deferred.promise,
+          value;
+
+      promise.then(function (translation) {
+        value = translation;
+      });
+
+      $translate.use('en_GB');
+
+      expect($translate.use()).toEqual('en');
+
+      $translate('YET_ANOTHER').then(function (translation) {
+        deferred.resolve(translation);
+      });
+      $rootScope.$digest();
+      expect(value).toEqual('Hello there!');
+    });
+
+    it('should load the language with the exact match first even if a wildcard is used', function () {
+      var deferred = $q.defer(),
+          promise = deferred.promise,
+          value;
+
+      promise.then(function (translation) {
+        value = translation;
+      });
+
+      $translate.use('tr_TR');
+
+      expect($translate.use()).toEqual('tr_TR');
+
+      $translate('YET_ANOTHER').then(function (translation) {
+        deferred.resolve(translation);
+      });
+      $rootScope.$digest();
+      expect(value).toEqual('Selam millet! (tr_TR)');
+    });
+
+    it('should load the correct language if a wildcard is used', function () {
+      var deferred = $q.defer(),
+          promise = deferred.promise,
+          value;
+
+      promise.then(function (translation) {
+        value = translation;
+      });
+
+      $translate.use('tr_TURKISH'); // Silly language name
+
+      expect($translate.use()).toEqual('tr');
+
+      $translate('YET_ANOTHER').then(function (translation) {
+        deferred.resolve(translation);
+      });
+      $rootScope.$digest();
+      expect(value).toEqual('Selam millet! (tr)');
+    });
+  });
+
+  // Spec for edge case: while preferred language is still loading,
+  //                     another language will be requested and
+  //                     is returning before the preferred one
+  // t0 ~ 0.0s           (request ab_CD)
+  // t1 ~ 0.5s           (request en_US)
+  // t2 ~ 1.5s           (response en_US)
+  // t3 ~ 2.0s           (response ab_CD)
+  describe('$translate#use() with async loading and two unordered requests in parallel', function () {
+
+    var fastButRequestedSecond = 'en_US',
+        slowButRequestedFirst = 'ab_CD',
+        expectedTranslation = 'Hello World',
+        notExpectedTranslation = 'foo bar bork bork bork',
+        fastRequestTime = 1000,
+        firstLanguageResponded = false,
+        secondLanguageResponded = false;
+
+    beforeEach(module('pascalprecht.translate', function ($translateProvider, $provide) {
+
+        $translateProvider.useLoader('customLoader');
+
+        $translateProvider.preferredLanguage(slowButRequestedFirst);
+
+        $provide.service('customLoader', function ($q, $timeout) {
+          return function (options) {
+            var deferred = $q.defer();
+            var locale = options.key;
+
+            if (locale === fastButRequestedSecond) {
+                $timeout(function () {
+                    secondLanguageResponded = true;
+                    // t2
+                    deferred.resolve({
+                        greeting: expectedTranslation
+                    });
+                }, fastRequestTime);
+            }
+
+            if (locale === slowButRequestedFirst) {
+                $timeout(function() {
+                    firstLanguageResponded = true;
+                    // t3
+                    deferred.resolve({
+                        greeting: notExpectedTranslation
+                    });
+                }, fastRequestTime * 2);
+            }
+
+            return deferred.promise;
+        };
+      });
+    }));
+
+    var $translate;
+
+    beforeEach(inject(function ($timeout, _$translate_, $rootScope) {
+      $translate = _$translate_;
+      // t0 already happened
+
+      $timeout(function () {
+        // t1
+        $translate.use(fastButRequestedSecond);
+      }, fastRequestTime / 2);
+
+      // t2
+      $timeout.flush();
+      $rootScope.$digest();
+
+      // t3
+      $timeout.flush();
+    }));
+
+    it('should be requested the first language', function () {
+      expect(firstLanguageResponded).toEqual(true);
+    });
+
+    it('should be requested the second language', function () {
+      expect(secondLanguageResponded).toEqual(true);
+    });
+
+    it('should set the language to be the most recently requested one, not the most recently responded one', inject(function($rootScope, $q) {
+
+      var value;
+
+      $translate('greeting').then(function (translation) {
+        value = translation;
+      });
+
+      $rootScope.$digest();
+      expect(value).toEqual(expectedTranslation);
+    }));
+  });
+
+  // Spec for edge case: while preferred language is still loading,
+  //                     another language will be requested as fallback
+  //                     and is returning before the preferred one
+  // t0 ~ 0.0s           (request ab_CD)
+  // t1 ~ 0.5s           (request en_US)
+  // t2 ~ 1.5s           (response en_US)
+  // t3 ~ 2.0s           (response ab_CD)
+  describe('$translate#use() with async loading and two unordered requests in parallel (+fallback)', function () {
+
+    var fastButRequestedSecond = 'en_US',
+        slowButRequestedFirst = 'ab_CD',
+        expectedTranslation = 'Hello World',
+        notExpectedTranslation = 'foo bar bork bork bork',
+        fastRequestTime = 1000,
+        firstLanguageResponded = false,
+        secondLanguageResponded = false;
+
+    beforeEach(module('pascalprecht.translate', function ($translateProvider, $provide) {
+
+        $translateProvider.useLoader('customLoader');
+
+        $translateProvider.preferredLanguage(slowButRequestedFirst);
+        $translateProvider.fallbackLanguage(fastButRequestedSecond);
+
+        $provide.service('customLoader', function ($q, $timeout) {
+          return function (options) {
+            var deferred = $q.defer();
+            var locale = options.key;
+
+            if (locale === fastButRequestedSecond) {
+                $timeout(function () {
+                    secondLanguageResponded = true;
+                    deferred.resolve({
+                        greeting: expectedTranslation
+                    });
+                }, fastRequestTime);
+            }
+
+            if (locale === slowButRequestedFirst) {
+                $timeout(function() {
+                    firstLanguageResponded = true;
+                    deferred.resolve({
+                        greeting: notExpectedTranslation
+                    });
+                }, fastRequestTime * 2);
+            }
+
+            return deferred.promise;
+        };
+      });
+    }));
+
+    var $translate;
+
+    beforeEach(inject(function ($timeout, _$translate_, $rootScope) {
+      $translate = _$translate_;
+
+      $timeout(function () {
+        $translate.use(fastButRequestedSecond);
+      }, fastRequestTime / 2);
+
+      $timeout.flush();
+      $rootScope.$digest();
+    }));
+
+    it('should be requested the first language', function () {
+      expect(firstLanguageResponded).toEqual(true);
+    });
+
+    it('should be requested the second language', function () {
+      expect(secondLanguageResponded).toEqual(true);
+    });
+
+    it('should set the language to be the most recently requested one, not the most recently responded one', inject(function($rootScope, $q) {
+
+      var value;
+
+      $translate('greeting').then(function (translation) {
+        value = translation;
+      });
+
+      $rootScope.$digest();
+      expect(value).toEqual(expectedTranslation);
+    }));
   });
 
   describe('$translate#storageKey()', function () {
@@ -308,7 +613,7 @@ describe('pascalprecht.translate', function () {
     }));
 
     it('should allow to change the storage key during config', function () {
-      expect($translate.storageKey()).toNotEqual($STORAGE_KEY);
+      expect($translate.storageKey()).not.toEqual($STORAGE_KEY);
     });
 
     it('shouldn\'t allow to change the storage key during runtime', function () {
@@ -384,9 +689,39 @@ describe('pascalprecht.translate', function () {
       });
     });
 
+    describe('translate returns handler result', function () {
+
+      beforeEach(module('pascalprecht.translate', function ($translateProvider, $provide) {
+        $translateProvider
+            .translations('de_DE', translationMock)
+            .preferredLanguage('de_DE');
+
+        // factory provides a default fallback text being defined in the factory
+        // gives a maximum of flexibility
+        $provide.factory('elementReturningTranslationHandler', function () {
+          return function (translationID, uses) {
+            return '<nkf>' + translationID + '</nkf>';
+          };
+        });
+        $translateProvider.useMissingTranslationHandler('elementReturningTranslationHandler');
+      }));
+
+      var $translate, $rootScope, $q;
+
+      beforeEach(inject(function (_$translate_, _$rootScope_, _$q_) {
+        $translate = _$translate_;
+        $rootScope = _$rootScope_;
+        $q = _$q_;
+      }));
+
+      it('when instant translate', function () {
+        expect($translate.instant('false.key')).toBe('<nkf>false.key</nkf>');
+      });
+    });
+
     describe('multi fallback language', function () {
 
-      beforeEach(module('pascalprecht.translate', function ($translateProvider) {
+      beforeEach(module('pascalprecht.translate', function ($translateProvider, $provide) {
         $translateProvider
           .translations('de_DE', translationMock)
           .translations('en_EN', { 'TRANSLATION__ID': 'bazinga' })
@@ -394,6 +729,15 @@ describe('pascalprecht.translate', function () {
           .translations('en_UK', { 'YAY': 'it really does!' })
           .fallbackLanguage(['en_EN', 'fr_FR', 'en_UK'])
           .preferredLanguage('de_DE');
+
+        // factory provides a default fallback text being defined in the factory
+        // gives a maximum of flexibility
+        $provide.factory('customTranslationHandler', function () {
+          return function (translationID, uses) {
+              return 'NO KEY FOUND';
+          };
+        });
+        $translateProvider.useMissingTranslationHandler('customTranslationHandler');
       }));
 
       var $translate, $rootScope, $q;
@@ -432,7 +776,66 @@ describe('pascalprecht.translate', function () {
         expect(value[2]).toEqual('it works!');
         expect(value[3]).toEqual('it really does!');
       });
+
+
+      it('should use fallback languages and miss one of the translation keys', function () {
+        var deferred = $q.defer(),
+          promise = deferred.promise,
+          value;
+
+        promise.then(function (translations) {
+          value = translations;
+        });
+
+        $q.all([
+          $translate('EXISTING_TRANSLATION_ID'),
+          $translate('TRANSLATION__ID'),
+          $translate('SUPERTEST'),
+          $translate('YAY'),
+          $translate('NOT_EXISTING')
+        ]).then(function (translations) {
+          deferred.resolve(translations);
+        });
+
+        $rootScope.$digest();
+
+        expect(value[0]).toEqual('foo');
+        expect(value[1]).toEqual('bazinga');
+        expect(value[2]).toEqual('it works!');
+        expect(value[3]).toEqual('it really does!');
+        expect(value[4]).toEqual('NO KEY FOUND');
+      });
+
+      it('should use fallback languages and return a default value for one of the translation keys', function () {
+        var deferred = $q.defer(),
+          promise = deferred.promise,
+          value;
+
+        promise.then(function (translations) {
+          value = translations;
+        });
+
+        $q.all([
+          $translate('EXISTING_TRANSLATION_ID'),
+          $translate('TRANSLATION__ID'),
+          $translate('SUPERTEST'),
+          $translate('YAY'),
+          $translate('NOT_EXISTING', undefined, undefined, 'Defaultvalue')
+        ]).then(function (translations) {
+          deferred.resolve(translations);
+        });
+
+        $rootScope.$digest();
+
+        expect(value[0]).toEqual('foo');
+        expect(value[1]).toEqual('bazinga');
+        expect(value[2]).toEqual('it works!');
+        expect(value[3]).toEqual('it really does!');
+        expect(value[4]).toEqual('Defaultvalue');
+      });
     });
+
+
 
     describe('registered loader', function () {
 
@@ -926,7 +1329,7 @@ describe('pascalprecht.translate', function () {
       it('should throw an error', function () {
         expect(function () {
           $translate.refresh();
-        }).toThrow('Couldn\'t refresh translation table, no loader registered!');
+        }).toThrowError('Couldn\'t refresh translation table, no loader registered!');
       });
     });
 
@@ -988,21 +1391,21 @@ describe('pascalprecht.translate', function () {
         spyOn($rootScope, '$emit');
         $translate.refresh();
         $timeout.flush();
-        expect($rootScope.$emit).toHaveBeenCalledWith('$translateRefreshStart');
+        expect($rootScope.$emit).toHaveBeenCalledWith('$translateRefreshStart', {language: undefined});
       });
 
       it('should emit $translateRefreshEnd', function () {
         spyOn($rootScope, '$emit');
         $translate.refresh();
         $timeout.flush();
-        expect($rootScope.$emit).toHaveBeenCalledWith('$translateRefreshEnd');
+        expect($rootScope.$emit).toHaveBeenCalledWith('$translateRefreshEnd', {language: undefined});
       });
 
       it('should emit $translateChangeSuccess event', function() {
         spyOn($rootScope, '$emit');
         $translate.refresh();
         $timeout.flush();
-        expect($rootScope.$emit).toHaveBeenCalledWith('$translateChangeSuccess');
+        expect($rootScope.$emit).toHaveBeenCalledWith('$translateChangeSuccess', {language: 'en_EN'});
       });
     });
   });
@@ -1090,6 +1493,113 @@ describe('pascalprecht.translate', function () {
         });
       });
     });
+
+    describe('with locale negotiation and lower-case navigation language', function () {
+
+      beforeEach(module('pascalprecht.translate', function ($translateProvider) {
+        $translateProvider
+          .translations('en', { FOO: 'bar' })
+          .translations('de', { FOO: 'foo' })
+          .registerAvailableLanguageKeys(['en', 'de'], {
+            'en_US': 'en',
+            'de_DE': 'de'
+          })
+          .determinePreferredLanguage(function () {
+            // mocking
+            // Work's like `window.navigator.lang = 'en_US'`
+            var nav = {
+              language: 'en_us'
+            };
+            return ((
+              nav.language ||
+                nav.browserLanguage ||
+                nav.systemLanguage ||
+                nav.userLanguage
+              ) || '').split('-').join('_');
+          });
+      }));
+
+      it('should determine browser language', function () {
+        inject(function ($translate, $q, $rootScope) {
+          var deferred = $q.defer(),
+            promise = deferred.promise,
+            value;
+
+          promise.then(function (foo) {
+            value = foo;
+          });
+          $translate('FOO').then(function (translation) {
+            deferred.resolve(translation);
+          });
+          $rootScope.$digest();
+          expect(value).toEqual('bar');
+        });
+      });
+    });
+
+    describe('with locale negotiation w/o aliases', function () {
+
+      var translateProvider;
+
+      beforeEach(module('pascalprecht.translate', function ($translateProvider) {
+        $translateProvider
+          .translations('en', { FOO: 'bar' })
+          .translations('de', { FOO: 'foo' })
+          .registerAvailableLanguageKeys(['en', 'de'])
+          .determinePreferredLanguage(function () {
+            // mocking
+            // Work's like `window.navigator.lang = 'en_US'`
+            var nav = {
+              language: 'en_US'
+            };
+            return ((
+              nav.language ||
+              nav.browserLanguage ||
+              nav.systemLanguage ||
+              nav.userLanguage
+            ) || '').split('-').join('_');
+          });
+
+          translateProvider = $translateProvider;
+      }));
+
+      it('should determine browser language', function () {
+        inject(function ($translate, $q, $rootScope) {
+          var deferred = $q.defer(),
+              promise = deferred.promise,
+              value;
+
+          promise.then(function (foo) {
+            value = foo;
+          });
+          $translate('FOO').then(function (translation) {
+            deferred.resolve(translation);
+          });
+          $rootScope.$digest();
+          expect(value).toEqual('bar');
+        });
+      });
+
+      it('should be chainable', function () {
+        inject(function () {
+          var ret = translateProvider.determinePreferredLanguage(function () {
+            // mocking
+            // Work's like `window.navigator.lang = 'en_US'`
+            var nav = {
+              language: 'en_US'
+            };
+            return ((
+              nav.language ||
+              nav.browserLanguage ||
+              nav.systemLanguage ||
+              nav.userLanguage
+            ) || '').split('-').join('_');
+          });
+
+          expect(ret).toEqual(translateProvider);
+        });
+      });
+    });
   });
 
   describe('$translate.instant', function () {
@@ -1117,8 +1627,19 @@ describe('pascalprecht.translate', function () {
       expect($translate.instant('FOO')).toEqual('bar');
     });
 
-    it('should return translation id if translation id nost exist', function () {
+    it('should return translation id if translation id not exist', function () {
       expect($translate.instant('FOO2')).toEqual('FOO2');
+    });
+
+    it('should return empty string if translated string is empty', function () {
+      expect($translate.instant('BLANK_VALUE')).toEqual('');
+    });
+
+   it('should return translations of multiple translation ids', function () {
+      var result = $translate.instant(['FOO', 'FOO2', 'BLANK_VALUE']);
+      expect(result.FOO).toEqual('bar');
+      expect(result.FOO2).toEqual('FOO2');
+      expect(result.BLANK_VALUE).toEqual('');
     });
   });
 
@@ -1167,5 +1688,94 @@ describe('pascalprecht.translate', function () {
     it('should return translation id if translation id nost exist', function () {
       expect($translate.instant('FOO3')).toEqual('FOO3');
     });
+
+    it('should return translation id with default interpolator if translation id nost exist', function () {
+      expect($translate.instant('FOO4 {{value}}', {'value': 'PARAM'})).toEqual('FOO4 PARAM');
+    });
   });
+
+  describe('$translate#determineTranslation with fallback for shortcuts', function () {
+
+    var missingTranslations = {};
+
+    beforeEach(module('pascalprecht.translate', function ($translateProvider, $provide) {
+      $translateProvider
+        .translations('en', {
+          'NAMESPACE1':
+          {
+            'SUBSPACE1':
+            {
+              'FOO': 'Translation1',
+              'BAR': 'Translation2',
+              'SUBSPACE1': 'Subtrans'
+            }
+          }
+        })
+        .translations('de', {
+          'FOO': 'Ich bin ein Foo'
+        })
+        .translations('fr', {
+          'NAMESPACE1': {
+            'SUBSPACE1': {
+              'FOO': 'Translation1 Francais',
+              'BAR': 'Translation2 Francais',
+              'SUBSPACE1': 'Subtrans',
+              'SUBSPACE2': 'Subtrans un a deux'
+            },
+            'SUBSPACE_FR': {
+              'SUBSPACE_FR': 'Francais angular'
+            },
+            'FALLBACK': '@:NAMESPACE1.SUBSPACE1.FOO'
+          }
+        })
+        .fallbackLanguage(['de', 'fr'])
+        .preferredLanguage('en');
+
+
+    }));
+
+    var $translate, $q, $rootScope;
+
+    beforeEach(inject(function (_$translate_, _$q_, _$rootScope_) {
+      $translate = _$translate_;
+      $q = _$q_;
+      $rootScope = _$rootScope_;
+    }));
+
+    it('should invoke the translation method and return the sh1ortcut translation value', function () {
+      var deferred = $q.defer(),
+        promise = deferred.promise,
+        value;
+
+      promise.then(function (foo) {
+        value = foo;
+      });
+      $translate('NAMESPACE1.SUBSPACE1').then(function (translation) {
+        deferred.resolve(translation);
+      });
+      $rootScope.$digest();
+      expect(value).toEqual('Subtrans');
+    });
+
+    it('should invoke the translation fallback stack and return the resolved french shortcut', function () {
+      var deferred = $q.defer(),
+        promise = deferred.promise,
+        value;
+
+      promise.then(function (foo) {
+        value = foo;
+      });
+      $translate('NAMESPACE1.SUBSPACE_FR').then(function (translation) {
+        deferred.resolve(translation);
+      });
+      $rootScope.$digest();
+      expect(value).toEqual('Francais angular');
+    });
+
+    it('should invoke the translation fallback stack and return the resolved at syntax based shortcut', function () {
+      expect($translate.instant('NAMESPACE1.FALLBACK')).toBe('Translation1 Francais');
+    });
+
+  });
+
 });

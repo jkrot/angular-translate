@@ -20,13 +20,16 @@ describe('pascalprecht.translate', function () {
         .preferredLanguage('en');
     }));
 
-    var $filter, $q, $rootScope, $translate;
+    var $filter, $q, $rootScope, $translate, $compile;
 
-    beforeEach(inject(function (_$filter_, _$q_, _$rootScope_) {
+    beforeEach(inject(function (_$filter_, _$q_, _$rootScope_, _$compile_) {
       $filter = _$filter_;
       $q = _$q_;
       $rootScope = _$rootScope_;
       $translate = $filter('translate');
+      $compile = _$compile_;
+
+      $rootScope.foo = 'bar';
     }));
 
     it('should be a function object', function () {
@@ -80,6 +83,23 @@ describe('pascalprecht.translate', function () {
       expect(value[5]).toEqual('10');
       expect(value[6]).toEqual('55');
     });
+
+    if (angular.version.major === 1 && angular.version.minor <= 2) {
+      // Until and including AJS 1.2, a filter was bound to a context (current scope). This was removed in AJS 1.3
+      it('should replace interpolate directive on element with given values', function () {
+        var element = $compile(angular.element('<div>{{"TRANSLATION_ID" | translate: "{value: foo}"}}</div>'))($rootScope);
+        $rootScope.$digest();
+        expect(element.html()).toEqual('Lorem Ipsum bar');
+      });
+    } else {
+      it('should replace interpolate directive on element with given values', function () {
+        $rootScope.__this = {value: 'bar'};
+        var element = $compile(angular.element('<div>{{"TRANSLATION_ID" | translate: __this}}</div>'))($rootScope);
+        $rootScope.$digest();
+        expect(element.html()).toEqual('Lorem Ipsum bar');
+        $rootScope.__this = undefined;
+      });
+    }
   });
 
   describe('additional interpolation', function () {
@@ -125,6 +145,32 @@ describe('pascalprecht.translate', function () {
 
     it('should consider translate-interpolation value', inject(function () {
       expect($translate('FOO', {}, 'custom')).toEqual('custom interpolation');
+    }));
+  });
+  describe('shall add the prefix and suffix elements', function () {
+
+    beforeEach(module('pascalprecht.translate', function ($translateProvider, $provide) {
+
+      $translateProvider.translations('en', {
+        'FOO': 'Have foo'
+      });
+
+      $translateProvider
+        .preferredLanguage('en')
+        .translationNotFoundIndicator('-+-+');
+    }));
+
+    var $translate, $filter, $rootScope, $q;
+    beforeEach(inject(function (_$filter_, _$rootScope_, _$q_) {
+      $filter = _$filter_;
+      $rootScope = _$rootScope_;
+      $q = _$q_;
+      $translate = $filter('translate');
+    }));
+
+    it('should contain the not found indicators', inject(function () {
+      expect($translate('FOO')).toEqual('Have foo');
+      expect($translate('FOO2')).toEqual('-+-+ FOO2 -+-+');
     }));
   });
 });

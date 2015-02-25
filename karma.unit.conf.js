@@ -1,6 +1,12 @@
 // Karma configuration
 
+var shared = require('./karma.util.conf.js');
+
 module.exports = function (config) {
+
+  var scope = process.env.TEST_SCOPE;
+  shared.log(scope);
+
   config.set({
 
     basePath: '',
@@ -8,10 +14,10 @@ module.exports = function (config) {
     frameworks: ['jasmine'],
 
     files: [
-      'bower_components/messageformat/messageformat.js',
-      'bower_components/angular/angular.js',
-      'bower_components/angular-cookies/angular-cookies.js',
-      'bower_components/angular-mocks/angular-mocks.js',
+      shared.injectByScope(scope, 'messageformat/messageformat.js'),
+      shared.injectByScope(scope, 'angular/angular.js'),
+      shared.injectByScope(scope, 'angular-cookies/angular-cookies.js'),
+      shared.injectByScope(scope, 'angular-mocks/angular-mocks.js'),
       'src/translate.js',
       'src/**/*.js',
       'test/unit/**/*.spec.js'
@@ -19,7 +25,15 @@ module.exports = function (config) {
 
     exclude: [],
 
-    reports: ['progress'],
+    reporters: shared.isDefaultScope(scope) ? ['progress', 'coverage'] : ['progress'],
+
+    preprocessors: shared.isDefaultScope(scope) ? { 'src/**/*.js': ['coverage'] } : undefined,
+
+    coverageReporter: shared.isDefaultScope(scope) ? {
+      dir: 'build/coverage',
+      subdir: 'report',
+      type: 'lcov'
+    } : undefined,
 
     port: 9876,
 
@@ -40,13 +54,6 @@ module.exports = function (config) {
 
     captureTimeout: 60000,
 
-    singleRun: false,
-
-    plugins: [
-      'karma-jasmine',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-phantomjs-launcher'
-    ]
+    singleRun: false
   });
 };

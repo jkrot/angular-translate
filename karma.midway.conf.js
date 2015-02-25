@@ -1,6 +1,12 @@
 // Karma configuration
 
+var shared = require('./karma.util.conf.js');
+
 module.exports = function (config) {
+
+  var scope = process.env.TEST_SCOPE;
+  shared.log(scope);
+
   config.set({
 
     basePath: '',
@@ -8,17 +14,15 @@ module.exports = function (config) {
     frameworks: ['jasmine'],
 
     files: [
-      'bower_components/angular/angular.js',
-      'bower_components/ngMidwayTester/Source/ngMidwayTester.js',
+      shared.injectByScope(scope, 'angular/angular.js'),
+      shared.injectByScope(scope, 'ngMidwayTester/src/ngMidwayTester.js'),
       'src/translate.js',
-      'bower_components/angular-translate-interpolation-default/angular-translate-interpolation-default.js',
+      shared.injectByScope(scope, 'angular-translate-interpolation-default/angular-translate-interpolation-default.js'),
       'src/**/*.js',
       'test/midway/**/*Spec.js'
     ],
 
     exclude: [],
-
-    reports: ['progress'],
 
     port: 9876,
 
@@ -41,13 +45,6 @@ module.exports = function (config) {
 
     captureTimeout: 60000,
 
-    singleRun: false,
-
-    plugins: [
-      'karma-jasmine',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-phantomjs-launcher'
-    ]
+    singleRun: false
   });
 };

@@ -19,8 +19,12 @@ angular.module('pascalprecht.translate').factory('$translateDefaultInterpolation
         escaped: function (params) {
           var result = {};
           for (var key in params) {
-            if (params.hasOwnProperty(key)) {
-              result[key] = angular.element('<div></div>').text(params[key]).html();
+            if (Object.prototype.hasOwnProperty.call(params, key)) {
+              if (angular.isNumber(params[key])) {
+                result[key] = params[key];
+              } else {
+                result[key] = angular.element('<div></div>').text(params[key]).html();
+              }
             }
           }
           return result;
@@ -85,7 +89,7 @@ angular.module('pascalprecht.translate').factory('$translateDefaultInterpolation
     if ($sanitizeValueStrategy) {
       interpolateParams = sanitizeParams(interpolateParams);
     }
-    return $interpolate(string)(interpolateParams);
+    return $interpolate(string)(interpolateParams || {});
   };
 
   return $translateInterpolator;

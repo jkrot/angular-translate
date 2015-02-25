@@ -1,13 +1,17 @@
 describe('pascalprecht.translate', function () {
 
+  var $translateLocalStorage, $window;
+
   describe('$translateLocalStorage', function () {
 
     beforeEach(module('pascalprecht.translate', 'ngCookies'));
 
-    var $translateLocalStorage;
 
-    beforeEach(inject(function (_$translateLocalStorage_) {
+
+    beforeEach(inject(function (_$translateLocalStorage_, _$window_) {
+    //beforeEach(inject(function (_$translateLocalStorage_) {
       $translateLocalStorage = _$translateLocalStorage_;
+      $window = _$window_;
     }));
 
     it('should be defined', function () {
@@ -18,9 +22,10 @@ describe('pascalprecht.translate', function () {
       expect(typeof $translateLocalStorage).toBe('object');
     });
 
-    it('should have a set() and a get() method', function () {
+    it('should have a put() and a get() method', function () {
+      expect($translateLocalStorage.put).toBeDefined();
       expect($translateLocalStorage.get).toBeDefined();
-      expect($translateLocalStorage.set).toBeDefined();
+      expect($translateLocalStorage.set).toBeDefined(); // deprecated
     });
 
     describe('$translateLocalStorage#get', function () {
@@ -30,9 +35,10 @@ describe('pascalprecht.translate', function () {
       });
     });
 
-    describe('$translateLocalStorage#set()', function () {
+    describe('$translateLocalStorage#put()', function () {
       it('should be a function', function () {
-        expect(typeof $translateLocalStorage.set).toBe('function');
+        expect(typeof $translateLocalStorage.set).toBe('function'); // deprecated
+        expect(typeof $translateLocalStorage.put).toBe('function');
       });
     });
 
@@ -42,7 +48,7 @@ describe('pascalprecht.translate', function () {
 
     beforeEach(module('pascalprecht.translate', 'ngCookies', function ($translateProvider) {
       // ensure that the local storage is cleared.
-      window.localStorage.clear();
+      $window.localStorage.clear();
       $translateProvider
         .translations('de_DE', {
           'EXISTING_TRANSLATION_ID': 'foo',
@@ -57,7 +63,7 @@ describe('pascalprecht.translate', function () {
     }));
 
     it('should use localstorage', function () {
-      inject(function ($window, $translate) {
+      inject(function ($translate) {
         expect($translate.storage().get($translate.storageKey())).toEqual('de_DE');
       });
     });
